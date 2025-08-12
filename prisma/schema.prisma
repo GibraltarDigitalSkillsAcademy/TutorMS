@@ -1,0 +1,56 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  INSTRUCTOR
+  READONLY
+}
+
+model Instructor {
+  id                Int     @id @default(autoincrement())
+  name              String
+  under_18          Boolean
+  from_industry     Boolean
+  from_education    Boolean
+  first_aid_trained Boolean
+  contact_number    String  @default("NONE")
+  contact_email     String  @default("NONE")
+  role              Role    @default(INSTRUCTOR)
+  archived          Boolean
+  classes           Class[]
+}
+
+model Room {
+  id       Int     @id @default(autoincrement())
+  name     String
+  owner    String
+  capacity Int
+  bookings Class[]
+}
+
+model Class {
+  id           Int        @id @default(autoincrement())
+  instructorId Int
+  roomId       Int        @default(1)
+  name         String
+  description  String?
+  instructor   Instructor @relation(fields: [instructorId], references: [id])
+  room         Room       @relation(fields: [roomId], references: [id])
+
+  startDatetime   DateTime
+  durationMinutes Int
+  timezone        String    @default("UTC")
+  rruleFreq       String?
+  rruleInterval   Int?
+  rruleByDay      String?
+  rruleUntil      DateTime?
+  rruleCount      Int?
+}
