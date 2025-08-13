@@ -1,36 +1,155 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TutorMS – Room & Class Scheduling Tool
 
-## Getting Started
+TutorMS is a scheduling and booking tool for managing **rooms, classes, instructors, and events** developed 
+for the Gibraltar Digital Skills academy.
 
-First, run the development server:
+Built with:
+- **Next.js** (React framework)
+- **Prisma** (database ORM)
+- **SQLite** (local development DB)
+- **Auth0** (authentication and login)
+- **Material UI** (UI components)
+- **React Big Calendar** (calendar view)
+
+---
+
+## 📦 1. Prerequisites
+
+Before starting, install the following software:
+
+| Tool | Download Link | Notes |
+|------|---------------|-------|
+| **Node.js** (LTS) | https://nodejs.org/en/download | Choose the LTS version, includes `npm` |
+| **Git** | https://git-scm.com/downloads | Used to download this project |
+| **Visual Studio Code** | https://code.visualstudio.com/Download | Recommended editor |
+| **SQLite** (optional) | https://www.sqlite.org/download.html | Prisma can manage it automatically |
+
+To check if they're installed, write the following in the VS Code Terminal:
+```bash
+node -v    # should be >= 18.x
+npm -v     # should be >= 9.x
+git --version
+```
+
+---
+
+## 📂 2. Download the Project
+
+Open a terminal, change directory to a folder you want/like and run:
+```bash
+# Clone the repository
+git clone https://github.com/GibraltarDigitalSkillsAcademy/tutorms.git
+
+# Go into the project folder
+cd tutorms
+```
+
+---
+
+## 📥 3. Install Dependencies
+
+This will install all required packages:
+```bash
+npm install
+```
+
+---
+
+## 🔐 4. Set Up Environment Variables
+
+Create a `.env.local` file in the **project root** and paste:
+
+```env
+# Prisma Database URL (SQLite for dev)
+DATABASE_URL="file:./dev.db"
+
+# Auth0 Credentials
+AUTH0_SECRET="a_random_32_char_hex_or_base64_string"
+AUTH0_BASE_URL="http://localhost:3000"
+AUTH0_ISSUER_BASE_URL="https://YOUR_DOMAIN.eu.auth0.com"
+AUTH0_CLIENT_ID="YOUR_CLIENT_ID"
+AUTH0_CLIENT_SECRET="YOUR_CLIENT_SECRET"
+
+# Optional (for API access / Organizations)
+# AUTH0_AUDIENCE="https://your-api-id"
+# AUTH0_SCOPE="openid profile email"
+# AUTH0_ORGANIZATION="org_abc123"
+```
+
+---
+
+## 🗄 5. Set Up the Database
+
+Prisma will create the database and apply the schema.
+
+```bash
+# Generate Prisma client
+npx prisma generate
+
+# Apply database schema
+npx prisma migrate dev --name init
+```
+
+You can inspect the database with:
+```bash
+npx prisma studio
+```
+Prisma Studio opens in the browser and lets you view/edit your data.
+
+---
+
+## ▶️ 6. Run the Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Now open:  
+👉 http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔑 7. Log In
 
-## Learn More
+- Click **Login** in the app (or go to `/auth/login`).
+- You will be redirected to Auth0.
+- Log in using your invited account (if using Organizations).
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠 8. Tech Stack Overview
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Feature | Technology |
+|---------|------------|
+| Framework | Next.js 14+ |
+| UI Components | Material UI |
+| Database | SQLite (dev) / any SQL DB (prod) |
+| ORM | Prisma |
+| Auth | Auth0 |
+| Calendar | React Big Calendar |
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 💡 9. Common Commands
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Run dev server |
+| `npm run build` | Build for production |
+| `npm start` | Start production server |
+| `npx prisma migrate dev --name change_name` | Update DB schema |
+| `npx prisma studio` | GUI to view/edit DB |
+
+---
+
+## 🧹 10. Troubleshooting
+
+- **Port in use**: Change the port with `npm run dev -- -p 4000`
+- **Auth0 login loop**: Make sure `AUTH0_BASE_URL` matches your site URL exactly
+- **Database errors**: Delete `dev.db` and run `npx prisma migrate dev` again
+
+---
+
+## 📜 License
+
+MIT License. Free to use and modify.
