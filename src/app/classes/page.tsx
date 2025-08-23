@@ -25,8 +25,12 @@ import {
 import { Add, Delete } from '@mui/icons-material';
 import { toUTCISOStringFromLocal, toUTCString } from '@/lib/timezone';
 import { RRule } from 'rrule';
+import { useRouter } from 'next/navigation';
+
+
 
 export default function ClassesPage() {
+  const router = useRouter();
   const [classes, setClasses] = useState<any[]>([]);
   const [instructors, setInstructors] = useState<any[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -118,7 +122,7 @@ export default function ClassesPage() {
     <Box p={4}>
       <Typography variant="h4" gutterBottom>Classes</Typography>
 
-      <Button variant="contained" startIcon={<Add />} onClick={() => setOpenForm(true)}>
+      <Button variant="contained" startIcon={<Add />} onClick={() => {router.push("/classes/new")}}>
         Add Class
       </Button>
 

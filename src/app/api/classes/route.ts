@@ -3,35 +3,12 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export function MOCK_GET() {
-
-  return [
-  {
-    id: 1,
-    title: 'Python PCEP',
-    start: new Date(2025, 6, 30, 10, 0),
-    end: new Date(2025, 6, 30, 12, 0),
-    instructor: 'Alice',
-    class: 'Python PCEP',
-  },
-  {
-    id: 2,
-    title: 'KS2 Robotics',
-    start: new Date(2025, 6, 31, 14, 0),
-    end: new Date(2025, 6, 31, 15, 30),
-    instructor: 'Bob',
-    class: 'KS2 Robotics',
-  },
-];
-
-}
-
-
 export async function GET() {
   
   const classes = await prisma.class.findMany({
     include: {
       instructor: true,
+      room: true,
     },
   });
   return NextResponse.json(classes);
@@ -51,7 +28,8 @@ export async function POST(req: Request) {
       rruleFreq: data.rruleFreq,
       rruleInterval: data.rruleInterval,
       rruleCount: data.rruleCount,
-      instructor: {connect: {id: data.instructorId}} 
+      instructor: {connect: {id: data.instructorId}},
+      room: {connect: {id: data.roomId}} 
     }
   });
   

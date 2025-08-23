@@ -48,7 +48,7 @@ export default function CalendarPage() {
   const [selectedInstructor, setSelectedInstructor] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
 
-  useEffect(() => {
+  /* useEffect(() => {
     const filtered = classes.filter((c) => {
       const matchesDate = selectedDate ? format(e.start, 'yyyy-MM-dd') === selectedDate : true;
       const matchesInstructor = selectedInstructor ? c.instructor === selectedInstructor : true;
@@ -57,7 +57,7 @@ export default function CalendarPage() {
     });
     setFilteredClasses(filtered);
   }, [selectedDate, selectedInstructor, selectedClass]);
-
+  */
   const fetchAll = async () => {
     const [clsRes, insRes] = await Promise.all([
       fetch('/api/classes'),
@@ -79,7 +79,7 @@ export default function CalendarPage() {
         freq: RRule[c.rruleFreq],
         dtstart: new Date(c.startDatetime),
         interval: c.rruleInterval || 1,
-        until: c.rruleUntil ? new Date(e.rruleUntil) : undefined,
+        until: c.rruleUntil ? new Date(c.rruleUntil) : undefined,
         count: c.rruleCount || undefined,
         byweekday: c.rruleByDay?.split(',').map(d => RRule[d.trim()]) || undefined,
       });
@@ -149,7 +149,6 @@ export default function CalendarPage() {
       <div style={{ height: isMobile ? '60vh' : '80vh', marginTop: 20}}>
         <Calendar
           localizer={localizer}
-          defaultDate={new Date()}
           events={filteredClasses}
           startAccessor="start"
           endAccessor="end"

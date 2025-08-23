@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   AppBar, Box, CssBaseline, Divider, Drawer, IconButton, List,
   ListItemButton, ListItemIcon, ListItemText, Toolbar, Typography,
-  useMediaQuery
+  useMediaQuery, Menu as MuiMenu, MenuItem, Tooltip, Button
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Menu, CalendarMonth, People, Home, ClassOutlined, MeetingRoom} from '@mui/icons-material';
-import { auth0 } from "@/lib/auth0";
+import {
+  Menu, CalendarMonth, People, Home, ClassOutlined, MeetingRoom, AccountCircle
+} from '@mui/icons-material';
+import { useUser } from '@auth0/nextjs-auth0';
 
 const drawerWidth = 240;
 
@@ -19,6 +21,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const { user, error, isLoading } = useUser();
 
   const navItems = [
     { href: '/', label: 'Home', icon: <Home /> },
@@ -49,11 +54,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     </Box>
   );
 
+  // Account menu
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const menuOpen = Boolean(anchorEl);
+  const handleMenuOpen = (e: React.MouseEvent<HTMLElement>) => setAnchorEl(e.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
 
-      <AppBar position="fixed" sx={{ zIndex: (t) => t.zIndex.drawer + 1 }}>
+      <AppBar
+        position="fixed"
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1,
+          // If you find the first column hidden behind the drawer on desktop,
+          // uncomment the next two lines to shift the AppBar over:
+          // width: { md: `calc(100% - ${drawerWidth}px)` },
+          // ml: { md: `${drawerWidth}px` },
+        }}
+      >
         <Toolbar>
           {!isMdUp && (
             <IconButton
@@ -69,6 +89,69 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <Typography variant="h6" noWrap component="div">
             TutorMS
           </Typography>
+
+          {/* Right-aligned account section */}
+          <Box sx={{ ml: 'auto', display: 'flex', alignItems: 'center', gap: 1 }}>
+            {isLoading ? (
+              <Typography variant="body2" sx={{ opacity: 0.7 }}>Loading…</Typography>
+            ) : user ? (
+              <>
+                <Typography
+                  variant="body2"
+                  sx={{ display: { xs: 'none', sm: 'block' }, maxWidth: 260 }}
+                  noWrap
+                  title={user.email || user.name || ''}
+                >
+                  {user.name || user.email}
+                </Typography>
+                <Tooltip title="Account">
+                  <IconButton
+                    color="inherit"
+                    onClick={handleMenuOpen}
+                    aria-controls={menuOpen ? 'account-menu' : undefined}
+                    aria-haspopup="true"
+                    aria-expanded={menuOpen ? 'true' : undefined}
+                  >
+                    <AccountCircle />
+                  </IconButton>
+                </Tooltip>
+
+                <MuiMenu
+                  id="account-menu"
+                  anchorEl={anchorEl}
+                  open={menuOpen}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                  transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      router.push('/account'); // change to your account/settings page
+                    }}
+                  >
+                    Account settings
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      handleMenuClose();
+                      // Auth0 v4 default logout route:
+                      router.push('/auth/logout');
+                    }}
+                  >
+                    Logout
+                  </MenuItem>
+                </MuiMenu>
+              </>
+            ) : (
+              <Button
+                color="inherit"
+                onClick={() => router.push('/auth/login')}
+              >
+                Login
+              </Button>
+            )}
+          </Box>
         </Toolbar>
       </AppBar>
 
