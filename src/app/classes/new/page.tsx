@@ -16,6 +16,22 @@ import {
 import { useRouter } from 'next/navigation';
 import { toUTCISOStringFromLocal } from '@/lib/timezone'; // uses luxon per earlier helper
 
+
+type Room = { id: number; name: string }; // add this since you're using Room[]
+
+const WEEKDAYS = [
+  { code: 'MO', label: 'Mon' },
+  { code: 'TU', label: 'Tue' },
+  { code: 'WE', label: 'Wed' },
+  { code: 'TH', label: 'Thu' },
+  { code: 'FR', label: 'Fri' },
+  { code: 'SA', label: 'Sat' },
+  { code: 'SU', label: 'Sun' },
+];
+
+
+
+
 type Instructor = { id: number; name: string };
 
 export default function NewClassPage() {
@@ -37,25 +53,45 @@ export default function NewClassPage() {
     timezone: 'UTC',
     rruleFreq: '',              // '', 'DAILY', 'WEEKLY', 'MONTHLY'
     rruleInterval: 1,
-    rruleByDay: '',             // e.g. "MO,WE,FR"
+    rruleByDay: [] as String[],             // e.g. "MO,WE,FR"
     rruleUntil: '',             // yyyy-MM-dd (date only)
     rruleCount: '',             // string to allow empty
   });
 
+  function toggleDay(code: string) {
+    setForm(f => {
+      const has = f.rruleByDay.includes(code);
+      return { ...f, rruleByDay: has ? f.rruleByDay.filter(d => d !== code) : [...f.rruleByDay, code] };
+    });
+  }
+
+  
+
   useEffect(() => {
-    (async () => {
-      try {
-        const resInstructor = await fetch('/api/instructors');
-        const dataInstructor = await resInstructor.json();
-        setInstructors(dataInstructor);
-        const resRoom = await fetch('/api/rooms');
-        const dataRoom = await resRoom.json();
-        setRooms(dataRoom);
-      } finally {
-        setLoadingRooms(false);
-      }
-    })();
-  }, []);
+  (async () => {
+    try {
+      const [resInstructor, resRoom] = await Promise.all([
+        fetch('/api/instructors'),
+        fetch('/api/rooms'),
+      ]);
+      if (!resInstructor.ok) throw new Error('Failed to load instructors');
+      if (!resRoom.ok) throw new Error('Failed to load rooms');
+
+      const [dataInstructor, dataRoom] = await Promise.all([
+        resInstructor.json(),
+        resRoom.json(),
+      ]);
+      setInstructors(dataInstructor);
+      setRooms(dataRoom);
+    } catch (e) {
+      console.error(e);
+      // optionally show a snackbar
+    } finally {
+      setLoadingInstructors(false);   // ✅ you were missing this
+      setLoadingRooms(false);
+    }
+  })();
+}, []);
 
   const canSubmit =
     form.name.trim().length > 0 &&
@@ -81,7 +117,7 @@ export default function NewClassPage() {
         timezone: form.timezone || 'UTC',
         rruleFreq: form.rruleFreq || undefined,
         rruleInterval: form.rruleInterval ? Number(form.rruleInterval) : undefined,
-        rruleByDay: form.rruleByDay?.trim() ? form.rruleByDay.trim() : undefined,
+        rruleByDay: form.rruleByDay.length ? form.rruleByDay.join(',') : undefined,
         rruleUntil: form.rruleUntil
           ? toUTCISOStringFromLocal(`${form.rruleUntil}T00:00:00`, form.timezone)
           : undefined,
@@ -213,7 +249,8 @@ export default function NewClassPage() {
           sx={{ mt: 2 }}
         />
 
-        <FormControl fullWidth sx={{ mt: 2 }}>
+        <FormControl fullWidth sx={{ mt: 2 }}
+          >
           <InputLabel>Recurrence</InputLabel>
           <Select
             label="Recurrence"
@@ -240,15 +277,31 @@ export default function NewClassPage() {
           inputProps={{ min: 1 }}
         />
 
-        <TextField
-          label="By Day (e.g. MO,WE)"
-          fullWidth
-          value={form.rruleByDay}
-          onChange={(e) => setForm((f) => ({ ...f, rruleByDay: e.target.value }))}
+        <FormControl
+          component="fieldset"
           sx={{ mt: 2 }}
-          placeholder="MO,WE,FR"
           disabled={form.rruleFreq !== 'WEEKLY' && form.rruleFreq !== 'MONTHLY'}
-        />
+        >
+          <Typography variant="body2" sx={{ mb: 1 }}>
+            By Day
+          </Typography>
+          <Box 
+
+            sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+            {WEEKDAYS.map((d) => (
+              <Button
+                key={d.code}
+                disabled={form.rruleFreq !== 'WEEKLY' && form.rruleFreq !== 'MONTHLY'}
+                variant={form.rruleByDay.includes(d.code) ? 'contained' : 'outlined'}
+                size="small"
+                onClick={() => toggleDay(d.code)}
+              >
+                {d.label}
+              </Button>
+            ))}
+          </Box>
+        </FormControl>
+
 
         <TextField
           label="Repeat Until"

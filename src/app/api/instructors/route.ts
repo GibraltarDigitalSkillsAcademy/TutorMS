@@ -12,9 +12,7 @@ export async function GET() {
 export async function POST(req: Request) {
   
   const data = await req.json();
-  
   const instructor = await prisma.instructor.create({ data });
-  
   return NextResponse.json(instructor);
 }
 

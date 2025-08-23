@@ -67,6 +67,7 @@ export default function RoomsPage() {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>Owner</TableCell>
+            <TableCell>Capacity</TableCell>
             <TableCell>Bookings</TableCell>
             <TableCell>Actions</TableCell>
           </TableRow>
@@ -76,6 +77,7 @@ export default function RoomsPage() {
             <TableRow key={room.id}>
               <TableCell>{room.name}</TableCell>
               <TableCell>{room.owner}</TableCell>
+              <TableCell>{room.capacity}</TableCell>
               <TableCell>{Array.isArray(room.bookings) ? room.bookings.length : '—'}</TableCell>
               <TableCell>
                 <IconButton
