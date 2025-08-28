@@ -64,6 +64,7 @@ export default function CalendarPage() {
       fetch('/api/instructors'),
     ]);
     setClasses(await clsRes.json());
+    setFilteredClasses(classes);
     setInstructors(await insRes.json());
   };
 
@@ -71,40 +72,65 @@ export default function CalendarPage() {
     fetchAll();
   }, []);
 
-  function inRange(range: any) {
-    // console.log("Range Check!", range);
 
-    const filtered_classes = classes.map((c) => {
+
+  function inRange(range: any) {
+  // Month view: array; Week/Day/Agenda: object
+  const start: Date = Array.isArray(range) ? range[0] : range.start;
+  const end: Date   = Array.isArray(range) ? range[range.length - 1] : range.end;
+
+  if (!(start instanceof Date) || !(end instanceof Date)) {
+    console.warn('Invalid range:', range);
+    setFilteredClasses([]);
+    return;
+  }
+
+  const expanded = classes.flatMap((c) => {
+    const duration = (c.durationMinutes || 0) * 60000;
+
+    // Non-recurring single class
+    if (!c.rruleFreq) {
+      const s = new Date(c.startDatetime);
+      const e = new Date(s.getTime() + duration);
+      return s < end && e > start
+        ? [{ title: c.name, start: s, end: e, instructor: c.instructor?.name, class: c.name }]
+        : [];
+    }
+
+    // Recurring
+    const freq = RRule[c.rruleFreq as keyof typeof RRule];
+    if (!freq) return [];
+
+    const byweekday = c.rruleByDay
+      ? c.rruleByDay.split(',').map((d: string) => RRule[d.trim() as keyof typeof RRule]).filter(Boolean)
+      : undefined;
+
+    try {
       const rule = new RRule({
-        freq: RRule[c.rruleFreq],
+        freq,
         dtstart: new Date(c.startDatetime),
         interval: c.rruleInterval || 1,
         until: c.rruleUntil ? new Date(c.rruleUntil) : undefined,
         count: c.rruleCount || undefined,
-        byweekday: c.rruleByDay?.split(',').map(d => RRule[d.trim()]) || undefined,
+        byweekday,
       });
-      const classes_in_range = rule.between(range.start, range.end);
-      // console.log("Classes in range", classes_in_range)
-      return classes_in_range.map((d) => {
-        return {
-          title: c.name,
-          start: d,
-          end: new Date(d.getTime() + c.durationMinutes * 60000),
-          instructor: c.instructor?.name,
-          class: c.name,
-        }
-      });
-    })
 
-    // console.log("Filtered:", filtered_classes);
-
-    let pushed_classes = []
-    for (const i of filtered_classes) {
-      pushed_classes.push(...i);
+      const dates = rule.between(start, end, true); // inclusive
+      return dates.map((d: Date) => ({
+        title: c.name,
+        start: d,
+        end: new Date(d.getTime() + duration),
+        instructor: c.instructor?.name,
+        class: c.name,
+      }));
+    } catch (err) {
+      console.error('RRULE error for class', c.id, err);
+      return [];
     }
-    // console.log("Pushed Classes: ", pushed_classes);
-    setFilteredClasses(pushed_classes);
-  }
+  });
+
+  setFilteredClasses(expanded);
+}
 
   return (
     <Container size={{ xs: 24, sm: 12}}>

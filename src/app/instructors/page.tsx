@@ -91,7 +91,7 @@ export default function InstructorsPage() {
     <Box >
       <Typography variant="h4" gutterBottom>Instructors</Typography>
 
-      <Button variant="contained" startIcon={<Add />} onClick={() => setOpenAdd(true)}>
+      <Button variant="contained" startIcon={<Add />} onClick={() => {router.push("/instructors/new")}}>
         Add Instructor
       </Button>
 
