@@ -54,7 +54,7 @@ export default function InstructorsPage() {
   }, []);
 
   const handleAddInstructor = async () => {
-    let json_data = JSON.stringify(newInstructor);
+    const json_data = JSON.stringify(newInstructor);
     await fetch('/api/instructors', {
       method: 'POST',
       body: json_data,
