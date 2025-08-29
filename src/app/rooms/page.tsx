@@ -23,7 +23,7 @@ type Room = {
   id: number;
   name: string;
   owner: string;
-  bookings?: any[]; // optional if your API includes it
+  bookings?: object[]; // optional if your API includes it
 };
 
 export default function RoomsPage() {

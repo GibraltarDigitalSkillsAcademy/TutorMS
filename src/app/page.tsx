@@ -134,7 +134,7 @@ export default function HomePage() {
     };
 
     try {
-      const rule = new RRule(options as any);
+      const rule = new RRule(options as object);
       const dates = rule.between(start, end, true); // inclusive
       return dates.map(d => ({
         classId: c.id,

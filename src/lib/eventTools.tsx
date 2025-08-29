@@ -1,6 +1,6 @@
 import { RRule } from 'rrule';
 
-export function convertToCalendarEvents(e: any): any[] {
+export function convertToCalendarEvents(e: object): object[] {
   const baseEvent = {
     id: e.id,
     title: e.class.name,
@@ -34,7 +34,7 @@ export function convertToCalendarEvents(e: any): any[] {
 }
 
 
-export function inRange(e: any, r: any) {
+export function inRange(e: object, r: object) {
 
   
 
