@@ -10,7 +10,7 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
   return NextResponse.json({ success: true });
 }
 
-export async function GET(req: Request, { params}: Promise<{ params: {id: string}}>) {
+export async function GET(req: Request, { params}: Promise<{id: string}>) {
   const id = parseInt(params.id, 10);
   const instructor = await prisma.instructor.findUnique({
     where: { id },
