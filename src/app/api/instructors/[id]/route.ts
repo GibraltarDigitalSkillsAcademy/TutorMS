@@ -4,8 +4,8 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
-  const id = parseInt(params.id, 10);
+export async function DELETE(_: Request, ctx: RouteContext<'/instructors/[id]'>) {
+  const id = await ctx.params;
   await prisma.instructor.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }

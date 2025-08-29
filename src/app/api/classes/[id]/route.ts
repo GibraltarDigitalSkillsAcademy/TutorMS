@@ -10,9 +10,8 @@ type RouteContext = {
 
 const prisma = new PrismaClient();
 
-export async function DELETE(req: Request) {
-  const data = req.json()
-  const id = data.id;
+export async function DELETE(req: Request, ctx: RouteContext<'classes/[id]'>) {
+  const id = await ctx.params;
   await prisma.class.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
