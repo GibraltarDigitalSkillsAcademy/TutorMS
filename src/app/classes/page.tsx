@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
-  Checkbox,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -31,8 +30,8 @@ import { useRouter } from 'next/navigation';
 
 export default function ClassesPage() {
   const router = useRouter();
-  const [classes, setClasses] = useState<any[]>([]);
-  const [instructors, setInstructors] = useState<any[]>([]);
+  const [classes, setClasses] = useState<object[]>([]);
+  const [instructors, setInstructors] = useState<object[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [openForm, setOpenForm] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);

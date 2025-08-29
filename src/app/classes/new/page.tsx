@@ -53,7 +53,7 @@ export default function NewClassPage() {
     timezone: 'UTC',
     rruleFreq: '',              // '', 'DAILY', 'WEEKLY', 'MONTHLY'
     rruleInterval: 1,
-    rruleByDay: [] as String[],             // e.g. "MO,WE,FR"
+    rruleByDay: [] as string[],             // e.g. "MO,WE,FR"
     rruleUntil: '',             // yyyy-MM-dd (date only)
     rruleCount: '',             // string to allow empty
   });
