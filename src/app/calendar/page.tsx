@@ -8,10 +8,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField,
   useMediaQuery,
-  Box,
-  Button,
+  Box
 } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -19,10 +17,11 @@ import { format, parse, startOfWeek, getDay } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useEffect, useState } from 'react';
 import { RRule } from 'rrule';
+import en_US from 'date-fns/locale/en-US';
 
 // date-fns locale config
 const locales = {
-  'en-US': require('date-fns/locale/en-US'),
+  'en-US': en_US,
 };
 const localizer = dateFnsLocalizer({
   format,
@@ -41,9 +40,9 @@ export default function CalendarPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [classes, setClasses] = useState<any[]>([]);
-  const [filteredClasses, setFilteredClasses] = useState<any[]>([]);
-  const [instructors, setInstructors] = useState<any[]>([]);
+  const [classes, setClasses] = useState<object[]>([]);
+  const [filteredClasses, setFilteredClasses] = useState<object[]>([]);
+  const [instructors, setInstructors] = useState<object[]>([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedInstructor, setSelectedInstructor] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
@@ -74,7 +73,7 @@ export default function CalendarPage() {
 
 
 
-  function inRange(range: any) {
+  function inRange(range: Array) {
   // Month view: array; Week/Day/Agenda: object
   const start: Date = Array.isArray(range) ? range[0] : range.start;
   const end: Date   = Array.isArray(range) ? range[range.length - 1] : range.end;
