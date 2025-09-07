@@ -26,12 +26,14 @@ import { toUTCISOStringFromLocal, toUTCString } from '@/lib/timezone';
 import { RRule } from 'rrule';
 import { useRouter } from 'next/navigation';
 
+import { Prisma, Class, Instructor } from '@prisma/client';
+type ClassType = Prisma.ClassGetPayload<{ include: {instructor: true}}>;
 
 
 export default function ClassesPage() {
   const router = useRouter();
-  const [classes, setClasses] = useState<object[]>([]);
-  const [instructors, setInstructors] = useState<object[]>([]);
+  const [classes, setClasses] = useState<ClassType[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [openForm, setOpenForm] = useState(false);
   const [openConfirm, setOpenConfirm] = useState(false);
@@ -141,7 +143,7 @@ export default function ClassesPage() {
               <TableCell>{cls.name}</TableCell>
               <TableCell>{cls.description}</TableCell>
               <TableCell>{cls.instructor?.name}</TableCell>
-              <TableCell>{cls.startDatetime?.slice(0, 16).replace('T', ' ')}</TableCell>
+              <TableCell>{cls.startDatetime?.toLocaleString()}</TableCell>
               <TableCell>
                 <IconButton color="error" onClick={() => {
                   setSelectedId(cls.id);

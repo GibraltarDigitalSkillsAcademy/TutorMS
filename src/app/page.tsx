@@ -188,7 +188,7 @@ export default function HomePage() {
 
       {/* Metrics */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">
@@ -202,7 +202,7 @@ export default function HomePage() {
           </Card>
         </Grid>
 
-        <Grid item xs={12} sm={6} md={3}>
+        <Grid>
           <Card>
             <CardContent>
               <Typography variant="overline" color="text.secondary">

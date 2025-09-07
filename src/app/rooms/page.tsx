@@ -19,12 +19,7 @@ import {
 import { Add, Delete } from '@mui/icons-material';
 import { useRouter } from 'next/navigation';
 
-type Room = {
-  id: number;
-  name: string;
-  owner: string;
-  bookings?: object[]; // optional if your API includes it
-};
+import { Room } from '@prisma/client';
 
 export default function RoomsPage() {
   const router = useRouter();

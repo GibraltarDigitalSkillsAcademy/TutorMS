@@ -14,18 +14,37 @@ enum Role {
   READONLY
 }
 
+model PersonalInformation {
+  id     Int      @id @default(autoincrement())
+  name   String
+  dob    String
+  email  String
+  phone  String
+  photo  Bytes
+  Person Person[]
+}
+
+model Person {
+  id                         Int                 @id @default(autoincrement())
+  instructorId               Int
+  personalInformationId      Int
+  instructorProfile          Instructor          @relation(fields: [instructorId], references: [id])
+  personalInformationProfile PersonalInformation @relation(fields: [personalInformationId], references: [id])
+}
+
 model Instructor {
-  id                Int     @id @default(autoincrement())
+  id                Int      @id @default(autoincrement())
   name              String
   under_18          Boolean
   from_industry     Boolean
   from_education    Boolean
   first_aid_trained Boolean
-  contact_number    String  @default("NONE")
-  contact_email     String  @default("NONE")
-  role              Role    @default(INSTRUCTOR)
+  contact_number    String   @default("NONE")
+  contact_email     String   @default("NONE")
+  role              Role     @default(INSTRUCTOR)
   archived          Boolean
   classes           Class[]
+  Person            Person[]
 }
 
 model Room {
@@ -37,14 +56,13 @@ model Room {
 }
 
 model Class {
-  id           Int        @id @default(autoincrement())
-  instructorId Int
-  roomId       Int        @default(1)
-  name         String
-  description  String?
-  instructor   Instructor @relation(fields: [instructorId], references: [id])
-  room         Room       @relation(fields: [roomId], references: [id])
-
+  id              Int        @id @default(autoincrement())
+  instructorId    Int
+  roomId          Int        @default(1)
+  name            String
+  description     String?
+  instructor      Instructor @relation(fields: [instructorId], references: [id])
+  room            Room       @relation(fields: [roomId], references: [id])
   startDatetime   DateTime
   durationMinutes Int
   timezone        String    @default("UTC")

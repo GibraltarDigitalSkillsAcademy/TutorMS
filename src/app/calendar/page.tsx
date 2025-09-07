@@ -16,12 +16,15 @@ import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import { format, parse, startOfWeek, getDay } from 'date-fns';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useEffect, useState } from 'react';
-import { RRule } from 'rrule';
-import en_US from 'date-fns/locale/en-US';
+import { RRule, type Frequency, type Weekday} from 'rrule';
+import { enUS } from 'date-fns/locale';
+
+import { Prisma, Class, Instructor } from '@prisma/client';
+
 
 // date-fns locale config
 const locales = {
-  'en-US': en_US,
+  'en-US': enUS,
 };
 const localizer = dateFnsLocalizer({
   format,
@@ -32,17 +35,23 @@ const localizer = dateFnsLocalizer({
 });
 
 
-
-
+type ClassType = Prisma.ClassGetPayload<{ include: {instructor: true}}>;
+type CalendarEvent = {
+    title: string;
+    start: Date;
+    end: Date;
+    instructor?: Instructor | null;
+    className: string;
+  };
 
 export default function CalendarPage() {
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  const [classes, setClasses] = useState<object[]>([]);
-  const [filteredClasses, setFilteredClasses] = useState<object[]>([]);
-  const [instructors, setInstructors] = useState<object[]>([]);
+  const [classes, setClasses] = useState<ClassType[]>([]);
+  const [calendarClasses, setCalendarClasses] = useState<CalendarEvent[]>([]);
+  const [instructors, setInstructors] = useState<Instructor[]>([]);
   const [selectedDate, setSelectedDate] = useState('');
   const [selectedInstructor, setSelectedInstructor] = useState('');
   const [selectedClass, setSelectedClass] = useState('');
@@ -63,7 +72,7 @@ export default function CalendarPage() {
       fetch('/api/instructors'),
     ]);
     setClasses(await clsRes.json());
-    setFilteredClasses(classes);
+    //setCalendarClasses(classes);
     setInstructors(await insRes.json());
   };
 
@@ -72,19 +81,43 @@ export default function CalendarPage() {
   }, []);
 
 
+  type FreqStr = 'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'; // adjust if you support more
 
-  function inRange(range: Array) {
+  const FREQ_MAP: Record<FreqStr, Frequency> = {
+    DAILY: RRule.DAILY,
+    WEEKLY: RRule.WEEKLY,
+    MONTHLY: RRule.MONTHLY,
+    YEARLY: RRule.YEARLY,
+  };
+
+  const WD_MAP: Record<string, Weekday> = {
+    MO: RRule.MO,
+    TU: RRule.TU,
+    WE: RRule.WE,
+    TH: RRule.TH,
+    FR: RRule.FR,
+    SA: RRule.SA,
+    SU: RRule.SU,
+  };
+
+  function toFreq(s: string): Frequency {
+    return FREQ_MAP[s as FreqStr];
+  }
+
+  
+
+  function inRange(range: Array<Date> | {start: Date, end: Date}) {
   // Month view: array; Week/Day/Agenda: object
   const start: Date = Array.isArray(range) ? range[0] : range.start;
   const end: Date   = Array.isArray(range) ? range[range.length - 1] : range.end;
 
   if (!(start instanceof Date) || !(end instanceof Date)) {
     console.warn('Invalid range:', range);
-    setFilteredClasses([]);
+    setCalendarClasses([]);
     return;
   }
 
-  const expanded = classes.flatMap((c) => {
+  const expanded: CalendarEvent[] = classes.flatMap((c) => {
     const duration = (c.durationMinutes || 0) * 60000;
 
     // Non-recurring single class
@@ -92,16 +125,16 @@ export default function CalendarPage() {
       const s = new Date(c.startDatetime);
       const e = new Date(s.getTime() + duration);
       return s < end && e > start
-        ? [{ title: c.name, start: s, end: e, instructor: c.instructor?.name, class: c.name }]
+        ? [{ title: c.name, start: s, end: e, instructor: c.instructor ?? undefined, className: c.name }]
         : [];
     }
 
     // Recurring
-    const freq = RRule[c.rruleFreq as keyof typeof RRule];
+    const freq = toFreq(c.rruleFreq);
     if (!freq) return [];
 
     const byweekday = c.rruleByDay
-      ? c.rruleByDay.split(',').map((d: string) => RRule[d.trim() as keyof typeof RRule]).filter(Boolean)
+      ? c.rruleByDay.split(',').map((d: string) => WD_MAP[d]).filter(Boolean)
       : undefined;
 
     try {
@@ -119,8 +152,8 @@ export default function CalendarPage() {
         title: c.name,
         start: d,
         end: new Date(d.getTime() + duration),
-        instructor: c.instructor?.name,
-        class: c.name,
+        instructor: c.instructor ?? undefined,
+        className: c.name,
       }));
     } catch (err) {
       console.error('RRULE error for class', c.id, err);
@@ -128,18 +161,18 @@ export default function CalendarPage() {
     }
   });
 
-  setFilteredClasses(expanded);
+  setCalendarClasses(expanded);
 }
 
   return (
-    <Container size={{ xs: 24, sm: 12}}>
+    <Container >
       <Typography variant="h4" gutterBottom>
         Class Schedule
       </Typography>
 
-      <Box size={{ xs: 12, sm: 6 }}>
-        <Grid container spacing={2}>
-          <Grid item size={{ xs: 12, sm: 6 }}>
+      <Box >
+        <Grid container spacing={2} size={{ xs: 12, sm: 6 }}>
+          <Grid>
             <FormControl fullWidth>
               <InputLabel>Filter by Class</InputLabel>
               <Select
@@ -153,7 +186,7 @@ export default function CalendarPage() {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item size={{ xs: 12, sm: 6 }}>
+          <Grid>
             <FormControl fullWidth>
               <InputLabel>Filter by Instructor</InputLabel>
               <Select
@@ -174,7 +207,7 @@ export default function CalendarPage() {
       <div style={{ height: isMobile ? '60vh' : '80vh', marginTop: 20}}>
         <Calendar
           localizer={localizer}
-          events={filteredClasses}
+          events={calendarClasses}
           startAccessor="start"
           endAccessor="end"
           style={{ height: '100%' }}

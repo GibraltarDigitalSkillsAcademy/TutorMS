@@ -196,7 +196,7 @@ export default function InstructorDetailsPage() {
 
       <Grid container spacing={3}>
         {/* Profile / Contact */}
-        <Grid item xs={12} md={6}>
+        <Grid >
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -234,7 +234,7 @@ export default function InstructorDetailsPage() {
         </Grid>
 
         {/* Classes */}
-        <Grid item xs={12} md={6}>
+        <Grid >
           <Card>
             <CardContent>
               <Stack direction="row" justifyContent="space-between" alignItems="center">

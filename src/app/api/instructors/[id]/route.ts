@@ -4,14 +4,14 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export async function DELETE(_: Request, ctx: RouteContext<'/instructors/[id]'>) {
-  const id = await ctx.params;
+export async function DELETE(_: Request, {params}: { params : Promise<{id: string}>}) {
+  const id = parseInt((await params).id);
   await prisma.instructor.delete({ where: { id } });
   return NextResponse.json({ success: true });
 }
 
-export async function GET(req: Request, ctx: RouteContext<'/instructors/[id]'>) {
-  const id = await ctx.params;
+export async function GET(req: Request, {params}: { params : Promise<{id: string}>}) {
+  const id = parseInt((await params).id);
   const instructor = await prisma.instructor.findUnique({
     where: { id },
     include: { classes: { include: { room: true } } },
