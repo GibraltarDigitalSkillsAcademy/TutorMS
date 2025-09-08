@@ -21,7 +21,6 @@ import { enUS } from 'date-fns/locale';
 
 import { Prisma, Class, Instructor } from '@prisma/client';
 
-
 // date-fns locale config
 const locales = {
   'en-US': enUS,
