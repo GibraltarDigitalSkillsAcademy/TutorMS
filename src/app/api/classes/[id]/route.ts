@@ -11,7 +11,7 @@ type RouteContext = {
 const prisma = new PrismaClient();
 
 
-export async function GET(req:Request, {params}: { params : Promise<{id: string}>}) {
+export async function GET(req: Request, {params}: { params : Promise<{id: string}>}) {
   console.log("GET with PARAM");
   const id = parseInt((await params).id);
   console.log(id);
