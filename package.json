@@ -19,7 +19,7 @@
     "@prisma/client": "^6.13.0",
     "date-fns": "^4.1.0",
     "luxon": "^3.7.1",
-    "next": "15.4.5",
+    "next": "15.4.10",
     "prisma": "^6.13.0",
     "react": "19.1.0",
     "react-big-calendar": "^1.19.4",
